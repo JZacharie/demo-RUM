@@ -1,8 +1,10 @@
 import { openobserveRum } from '@openobserve/browser-rum';
 import { openobserveLogs } from '@openobserve/browser-logs';
 
-const options = {
-    clientToken: 'rumxtahckcYnLIpmHgu',
+// Use runtime configuration from config.js (generated from env vars)
+// Fallback to defaults if config.js is not loaded
+const options = window.RUM_CONFIG || {
+    clientToken: 'rumZmfACViIKP6YzziM',
     applicationId: 'web-application-id',
     site: 'o2-openobserve.p.zacharie.org',
     service: 'my-web-application',

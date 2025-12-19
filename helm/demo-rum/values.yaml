@@ -37,6 +37,14 @@ service:
 # Environment variables
 env:
   RUM_CLIENT_TOKEN: ""
+  RUM_APPLICATION_ID: "web-application-id"
+  RUM_SITE: "o2-openobserve.p.zacharie.org"
+  RUM_SERVICE: "my-web-application"
+  RUM_ENV: "production"
+  RUM_VERSION: "0.0.1"
+  RUM_ORGANIZATION_IDENTIFIER: "default"
+  RUM_INSECURE_HTTP: "false"
+  RUM_API_VERSION: "v1"
 
 ingress:
   enabled: false
