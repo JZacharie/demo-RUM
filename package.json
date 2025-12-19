@@ -1,0 +1,18 @@
+{
+    "name": "demo-rum",
+    "version": "0.0.1",
+    "description": "OpenObserve RUM Demo Application",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@openobserve/browser-rum": "^0.2.11",
+        "@openobserve/browser-logs": "^0.2.11"
+    },
+    "devDependencies": {
+        "vite": "^5.0.0"
+    }
+}

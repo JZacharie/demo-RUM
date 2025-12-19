@@ -1,0 +1,16 @@
+apiVersion: v2
+name: demo-rum
+description: OpenObserve RUM Demo Application
+type: application
+version: 0.1.0
+appVersion: "0.0.1"
+keywords:
+  - openobserve
+  - rum
+  - monitoring
+  - observability
+home: https://github.com/JZacharie/demo-RUM
+sources:
+  - https://github.com/JZacharie/demo-RUM
+maintainers:
+  - name: Joseph Zacharie
