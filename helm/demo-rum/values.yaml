@@ -34,6 +34,10 @@ service:
   port: 80
   targetPort: 80
 
+# Environment variables
+env:
+  RUM_CLIENT_TOKEN: ""
+
 ingress:
   enabled: false
   className: "nginx"
