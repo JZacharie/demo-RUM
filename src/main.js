@@ -5,11 +5,11 @@ import { openobserveLogs } from '@openobserve/browser-logs';
 // Fallback to defaults if config.js is not loaded
 const options = window.RUM_CONFIG || {
     clientToken: 'rumZmfACViIKP6YzziM',
-    applicationId: 'web-application-id',
+    applicationId: 'readur-app',
     site: 'o2-openobserve.p.zacharie.org',
-    service: 'my-web-application',
+    service: 'readur',
     env: 'production',
-    version: '0.0.1',
+    version: '0.2.6',
     organizationIdentifier: 'default',
     insecureHTTP: false,
     apiVersion: 'v1',

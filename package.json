@@ -1,5 +1,5 @@
 {
-    "name": "demo-rum",
+    "name": "readur-rum",
     "version": "0.0.1",
     "description": "OpenObserve RUM Demo Application",
     "type": "module",
