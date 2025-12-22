@@ -15,5 +15,5 @@ window.RUM_CONFIG = {
 };
 EOF
 
-# Start nginx
-exec nginx -g 'daemon off;'
+# Start backend
+exec python api.py

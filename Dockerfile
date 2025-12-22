@@ -1,44 +1,47 @@
-# Build stage
+# Build stage for frontend
 FROM node:20-alpine AS builder
-
 WORKDIR /app
-
-# Copy package files
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
-
-# Copy source files
 COPY . .
-
-# Build the application
 RUN npm run build
 
 # Production stage
-FROM nginx:alpine
+FROM python:3.11-slim
 
-# Copy custom nginx config
-COPY nginx.conf /etc/nginx/nginx.conf
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    wget \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy built files from builder stage
+WORKDIR /app
+
+# Copy requirement first for better caching
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy built frontend files
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Create necessary directories and set permissions for non-root user
-RUN mkdir -p /tmp/client_temp /tmp/proxy_temp_path /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp && \
-    chown -R nginx:nginx /usr/share/nginx/html /tmp/client_temp /tmp/proxy_temp_path /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp && \
-    chmod -R 755 /usr/share/nginx/html
-
-# Copy entrypoint script
+# Copy backend files
+COPY api.py .
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
-# Expose port 80
-EXPOSE 80
+# Environment variables
+ENV RUM_CLIENT_TOKEN=""
+ENV RUM_APPLICATION_ID=""
+ENV RUM_SITE=""
+ENV RUM_SERVICE="demo-rum"
+ENV RUM_ENV="production"
+ENV RUM_VERSION="0.0.4"
+ENV RUM_ORGANIZATION_IDENTIFIER="default"
+ENV RUM_INSECURE_HTTP="false"
+ENV RUM_API_VERSION="v1"
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --quiet --tries=1 --spider http://localhost/ || exit 1
+EXPOSE 8000
 
-# Use entrypoint script
+# Use a shell script to generate config and run uvicorn
 ENTRYPOINT ["/docker-entrypoint.sh"]

@@ -7,7 +7,7 @@ const options = window.RUM_CONFIG || {
     site: 'o2-openobserve.p.zacharie.org',
     service: 'demo-rum',
     env: 'production',
-    version: '0.0.3',
+    version: '0.0.4',
     organizationIdentifier: 'default',
     insecureHTTP: false,
     apiVersion: 'v1',
@@ -65,38 +65,32 @@ plugins.forEach(plugin => {
     pluginGrid.appendChild(card);
 
     document.getElementById(`load-${plugin.id}`).addEventListener('click', async () => {
-        const startTime = performance.now();
-        showNotification(`🔄 Loading ${plugin.name}...`, 'info');
+        showNotification(`🔄 Loading ${plugin.name} from DB...`, 'info');
 
-        // Simulate a DB Query monitored by APM (mocking fetch to a backend)
-        // In a real app, this would be a fetch to an instrumented backend
-        // Here we track it via RUM and OTel simulator
         try {
-            const queryTime = Math.random() * 500 + 200;
+            const response = await fetch(`/api/load-plugin/${plugin.id}`);
+            const data = await response.json();
 
-            // SIMULATE BACKEND APM TRACE
-            // This is what would show up in APM if we had a backend
-            console.log(`[APM] TRACE: SELECT * FROM plugins WHERE id = '${plugin.id}' - DB: demo-rum - Duration: ${queryTime}ms`);
+            if (data.status === 'loaded') {
+                openobserveRum.addAction('plugin_load', {
+                    plugin_id: plugin.id,
+                    plugin_name: data.name,
+                    database: 'demo-rum',
+                    status: 'success'
+                });
 
-            await new Promise(resolve => setTimeout(resolve, queryTime));
+                openobserveLogs.logger.info(`Plugin ${data.name} loaded from demo-rum database`, {
+                    plugin_id: plugin.id,
+                    db: 'demo-rum'
+                });
 
-            openobserveRum.addAction('plugin_load', {
-                plugin_id: plugin.id,
-                plugin_name: plugin.name,
-                duration: queryTime,
-                database: 'demo-rum',
-                query: `SELECT * FROM plugins WHERE id = '${plugin.id}'`
-            });
-
-            openobserveLogs.logger.info(`Plugin ${plugin.name} loaded from demo-rum database`, {
-                plugin_id: plugin.id,
-                db: 'demo-rum',
-                latency: queryTime
-            });
-
-            showNotification(`✅ ${plugin.name} loaded from DB in ${queryTime.toFixed(0)}ms`, 'success');
+                showNotification(`✅ ${data.name} loaded from DB successfully`, 'success');
+            } else {
+                throw new Error(data.error || 'Unknown error');
+            }
         } catch (err) {
             openobserveLogs.logger.error('Plugin loading failed', { error: err.message });
+            showNotification(`❌ Error: ${err.message}`, 'error');
         }
     });
 });
