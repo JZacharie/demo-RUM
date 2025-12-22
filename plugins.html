@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plugins - OpenObserve RUM Demo</title>
+  <script src="/config.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo" style="cursor: pointer" onclick="window.location.href='/'">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="40" height="40" rx="8" fill="url(#gradient)" />
+          <path d="M20 10L28 16V24L20 30L12 24V16L20 10Z" stroke="white" stroke-width="2" stroke-linejoin="round" />
+          <defs>
+            <linearGradient id="gradient" x1="0" y1="0" x2="40" y2="40">
+              <stop offset="0%" stop-color="#667eea" />
+              <stop offset="100%" stop-color="#764ba2" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <h1>OpenObserve RUM</h1>
+      </div>
+      <nav>
+          <a href="/" style="color: white; text-decoration: none; margin-right: 20px">Home</a>
+          <a href="/plugins.html" style="color: white; text-decoration: underline; font-weight: bold">Plugins</a>
+      </nav>
+    </header>
+
+    <main class="main">
+      <section class="hero">
+        <h2 class="hero-title">Plugin Manager</h2>
+        <p class="hero-subtitle">Simulate loading plugins from the <code>demo-rum</code> database in <code>pg-prd</code></p>
+      </section>
+
+      <section class="demo-section">
+        <h3>Available Plugins</h3>
+        <div class="hero-stats" id="plugin-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+            <!-- Plugins will be injected here -->
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Built with ❤️ for OpenObserve RUM Demo</p>
+    </footer>
+  </div>
+  <script type="module" src="/src/plugins.js"></script>
+</body>
+</html>
