@@ -1,6 +1,7 @@
 import os
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from sqlalchemy import create_engine, text
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
@@ -16,7 +17,7 @@ from bs4 import BeautifulSoup
 # OpenTelemetry Setup
 resource_attributes = {
     "service.name": os.getenv("RUM_SERVICE", "demo-rum-backend"),
-    "service.version": os.getenv("RUM_VERSION", "0.0.6"),
+    "service.version": os.getenv("RUM_VERSION", "0.0.8"),
     "deployment.environment": os.getenv("RUM_ENV", "production")
 }
 
@@ -93,8 +94,23 @@ async def get_chuck_norris_fact():
     except Exception as e:
         return {"error": str(e), "fact": "Chuck Norris broke the API."}
 
-# Serve static files from the frontend build
-app.mount("/", StaticFiles(directory="/usr/share/nginx/html", html=True), name="static")
+# Mount static files AFTER all API routes
+app.mount("/assets", StaticFiles(directory="/usr/share/nginx/html/assets"), name="assets")
+app.mount("/src", StaticFiles(directory="/usr/share/nginx/html/src"), name="src")
+
+# Catch-all route for SPA routing - serves index.html for any non-API routes
+@app.get("/{full_path:path}")
+async def serve_spa(full_path: str):
+    """Serve static files or index.html for SPA routing"""
+    static_dir = "/usr/share/nginx/html"
+    file_path = os.path.join(static_dir, full_path)
+    
+    # If the file exists, serve it
+    if os.path.isfile(file_path):
+        return FileResponse(file_path)
+    
+    # Otherwise serve index.html for SPA routing
+    return FileResponse(os.path.join(static_dir, "index.html"))
 
 if __name__ == "__main__":
     FastAPIInstrumentor.instrument_app(app)
