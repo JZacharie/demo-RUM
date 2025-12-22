@@ -1,7 +1,6 @@
 import os
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from sqlalchemy import create_url
 from sqlalchemy import create_engine, text
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter

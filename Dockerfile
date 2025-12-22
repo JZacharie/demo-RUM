@@ -23,12 +23,13 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy built frontend files
+RUN mkdir -p /usr/share/nginx/html
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Copy backend files
 COPY api.py .
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh && chown -R 101:101 /app /usr/share/nginx/html
 
 # Environment variables
 ENV RUM_CLIENT_TOKEN=""
