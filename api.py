@@ -84,7 +84,7 @@ async def get_chuck_norris_fact():
         
         # Parse HTML to get a fact
         soup = BeautifulSoup(response.text, 'html.parser')
-        fact_element = soup.select_one('.fact')
+        fact_element = soup.select_one('p.card-text')
         
         if fact_element:
             fact = fact_element.text.strip()
