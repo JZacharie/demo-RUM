@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/style.css">
 </head>
+
 <body>
   <div class="container">
     <header class="header">
@@ -27,21 +29,24 @@
         <h1>OpenObserve RUM</h1>
       </div>
       <nav>
-          <a href="/" style="color: white; text-decoration: none; margin-right: 20px">Home</a>
-          <a href="/plugins.html" style="color: white; text-decoration: underline; font-weight: bold">Plugins</a>
+        <a href="/" style="color: white; text-decoration: none; margin-right: 15px">Home</a>
+        <a href="/plugins.html"
+          style="color: white; text-decoration: underline; font-weight: bold; margin-right: 15px">Plugins</a>
+        <a href="/apis.html" style="color: white; text-decoration: none">External APIs</a>
       </nav>
     </header>
 
     <main class="main">
       <section class="hero">
         <h2 class="hero-title">Plugin Manager</h2>
-        <p class="hero-subtitle">Simulate loading plugins from the <code>demo-rum</code> database in <code>pg-prd</code></p>
+        <p class="hero-subtitle">Simulate loading plugins from the <code>demo-rum</code> database in <code>pg-prd</code>
+        </p>
       </section>
 
       <section class="demo-section">
         <h3>Available Plugins</h3>
         <div class="hero-stats" id="plugin-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-            <!-- Plugins will be injected here -->
+          <!-- Plugins will be injected here -->
         </div>
       </section>
     </main>
@@ -52,4 +57,5 @@
   </div>
   <script type="module" src="/src/plugins.js"></script>
 </body>
+
 </html>

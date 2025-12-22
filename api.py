@@ -8,12 +8,15 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
+from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
 import uvicorn
+import httpx
+from bs4 import BeautifulSoup
 
 # OpenTelemetry Setup
 resource_attributes = {
     "service.name": os.getenv("RUM_SERVICE", "demo-rum-backend"),
-    "service.version": os.getenv("RUM_VERSION", "0.0.3"),
+    "service.version": os.getenv("RUM_VERSION", "0.0.6"),
     "deployment.environment": os.getenv("RUM_ENV", "production")
 }
 
@@ -27,6 +30,9 @@ app = FastAPI()
 # Database Setup
 DATABASE_URL = os.getenv("DB_URL", "postgresql://app:password@cluster-pg-rw.pg-prd.svc:5432/demo-rum")
 engine = create_engine(DATABASE_URL)
+
+# HTTP Client with OTel instrumentation
+http_client = httpx.AsyncClient(timeout=10.0)
 
 @app.get("/api/health")
 async def health():
@@ -44,10 +50,54 @@ async def load_plugin(plugin_id: str):
         else:
             return {"error": "Plugin not found", "status": "failed"}
 
+@app.get("/api/hackernews")
+async def get_hackernews():
+    """Fetch top stories from HackerNews with OTel tracing"""
+    try:
+        response = await http_client.get("https://news.ycombinator.com/")
+        response.raise_for_status()
+        
+        # Parse HTML to get top stories
+        soup = BeautifulSoup(response.text, 'html.parser')
+        stories = []
+        
+        for item in soup.select('.athing')[:10]:  # Get top 10 stories
+            title_link = item.select_one('.titleline > a')
+            if title_link:
+                stories.append({
+                    "title": title_link.text,
+                    "url": title_link.get('href', ''),
+                    "id": item.get('id', '')
+                })
+        
+        return {"stories": stories, "count": len(stories)}
+    except Exception as e:
+        return {"error": str(e), "stories": []}
+
+@app.get("/api/chucknorris")
+async def get_chuck_norris_fact():
+    """Fetch a random Chuck Norris fact with OTel tracing"""
+    try:
+        response = await http_client.get("https://www.chucknorrisfacts.fr/facts/")
+        response.raise_for_status()
+        
+        # Parse HTML to get a fact
+        soup = BeautifulSoup(response.text, 'html.parser')
+        fact_element = soup.select_one('.fact')
+        
+        if fact_element:
+            fact = fact_element.text.strip()
+            return {"fact": fact, "source": "chucknorrisfacts.fr"}
+        else:
+            return {"error": "Could not find fact", "fact": "Chuck Norris doesn't need facts."}
+    except Exception as e:
+        return {"error": str(e), "fact": "Chuck Norris broke the API."}
+
 # Serve static files from the frontend build
 app.mount("/", StaticFiles(directory="/usr/share/nginx/html", html=True), name="static")
 
 if __name__ == "__main__":
     FastAPIInstrumentor.instrument_app(app)
     SQLAlchemyInstrumentor().instrument(engine=engine)
+    HTTPXClientInstrumentor().instrument_client(http_client)
     uvicorn.run(app, host="0.0.0.0", port=8000)
