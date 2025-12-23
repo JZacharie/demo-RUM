@@ -96,7 +96,8 @@ async def get_chuck_norris_fact():
 
 # Mount static files AFTER all API routes
 app.mount("/assets", StaticFiles(directory="/usr/share/nginx/html/assets"), name="assets")
-app.mount("/src", StaticFiles(directory="/usr/share/nginx/html/src"), name="src")
+# Note: /src directory only exists in dev mode with Vite, not in production build
+# app.mount("/src", StaticFiles(directory="/usr/share/nginx/html/src"), name="src")
 
 # Catch-all route for SPA routing - serves index.html for any non-API routes
 @app.get("/{full_path:path}")
