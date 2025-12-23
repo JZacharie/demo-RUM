@@ -17,7 +17,7 @@ from bs4 import BeautifulSoup
 # OpenTelemetry Setup
 resource_attributes = {
     "service.name": os.getenv("RUM_SERVICE", "demo-rum-backend"),
-    "service.version": os.getenv("RUM_VERSION", "0.0.8"),
+    "service.version": os.getenv("RUM_VERSION", "0.0.9"),
     "deployment.environment": os.getenv("RUM_ENV", "production")
 }
 
@@ -95,9 +95,10 @@ async def get_chuck_norris_fact():
         return {"error": str(e), "fact": "Chuck Norris broke the API."}
 
 # Mount static files AFTER all API routes
-app.mount("/assets", StaticFiles(directory="/usr/share/nginx/html/assets"), name="assets")
-# Note: /src directory only exists in dev mode with Vite, not in production build
-# app.mount("/src", StaticFiles(directory="/usr/share/nginx/html/src"), name="src")
+for path, mount_name in [("/usr/share/nginx/html/assets", "assets"), ("/usr/share/nginx/html/src", "src")]:
+    if os.path.exists(path):
+        app.mount(f"/{mount_name}", StaticFiles(directory=path), name=mount_name)
+
 
 # Catch-all route for SPA routing - serves index.html for any non-API routes
 @app.get("/{full_path:path}")

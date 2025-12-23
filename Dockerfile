@@ -23,9 +23,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy built frontend files
-RUN mkdir -p /usr/share/nginx/html
+RUN mkdir -p /usr/share/nginx/html/src
 COPY --from=builder /app/dist /usr/share/nginx/html
-
 # Copy backend files
 COPY api.py .
 COPY docker-entrypoint.sh /docker-entrypoint.sh
@@ -37,7 +36,7 @@ ENV RUM_APPLICATION_ID=""
 ENV RUM_SITE=""
 ENV RUM_SERVICE="demo-rum"
 ENV RUM_ENV="production"
-ENV RUM_VERSION="0.0.4"
+ENV RUM_VERSION="0.0.9"
 ENV RUM_ORGANIZATION_IDENTIFIER="default"
 ENV RUM_INSECURE_HTTP="false"
 ENV RUM_API_VERSION="v1"
