@@ -2,8 +2,28 @@ apiVersion: v1
 entries:
   demo-rum:
   - apiVersion: v2
+    appVersion: 0.0.5
+    created: "2025-12-26T21:48:38.755179811Z"
+    description: OpenObserve RUM Demo Application
+    digest: 2c9853faf507dcab24f530dbb0cbed91d74bea5bf11ae3ba31c3e02aa403a9ea
+    home: https://github.com/JZacharie/demo-RUM
+    keywords:
+    - openobserve
+    - rum
+    - monitoring
+    - observability
+    maintainers:
+    - name: Joseph Zacharie
+    name: demo-rum
+    sources:
+    - https://github.com/JZacharie/demo-RUM
+    type: application
+    urls:
+    - https://JZacharie.github.io/demo-RUM/demo-rum-0.1.7.tgz
+    version: 0.1.7
+  - apiVersion: v2
     appVersion: 0.0.10
-    created: "2025-12-26T21:01:07.773274847Z"
+    created: "2025-12-26T21:48:38.753960657Z"
     description: OpenObserve RUM Demo Application
     digest: 9bb00e9fb1aa7940a427fa05c8bb5a56c4121dec20ac06c9fba6b9fe2b9574b7
     home: https://github.com/JZacharie/demo-RUM
@@ -23,7 +43,7 @@ entries:
     version: 0.1.6
   - apiVersion: v2
     appVersion: 0.0.2
-    created: "2025-12-26T21:01:07.772861096Z"
+    created: "2025-12-26T21:48:38.753553985Z"
     description: OpenObserve RUM Demo Application
     digest: 13574aa8947cff059602937d4e6f28e458c816fba689c0743208fd32a431b37d
     home: https://github.com/JZacharie/demo-RUM
@@ -43,7 +63,7 @@ entries:
     version: 0.1.4
   - apiVersion: v2
     appVersion: 0.0.1
-    created: "2025-12-26T21:01:07.772395178Z"
+    created: "2025-12-26T21:48:38.753136692Z"
     description: OpenObserve RUM Demo Application
     digest: 08c9a0620c13a595ad8e13ab9ea8e539182d728dce213432e95566e200377618
     home: https://github.com/JZacharie/demo-RUM
@@ -63,7 +83,7 @@ entries:
     version: 0.1.3
   - apiVersion: v2
     appVersion: 0.0.1
-    created: "2025-12-26T21:01:07.77198318Z"
+    created: "2025-12-26T21:48:38.752674064Z"
     description: OpenObserve RUM Demo Application
     digest: 17ffe5a34277451c9da53f5c17075999c5e73f9906d49438144e62c0d432521a
     home: https://github.com/JZacharie/demo-RUM
@@ -83,7 +103,7 @@ entries:
     version: 0.1.2
   - apiVersion: v2
     appVersion: 0.0.1
-    created: "2025-12-26T21:01:07.77153768Z"
+    created: "2025-12-26T21:48:38.752261301Z"
     description: OpenObserve RUM Demo Application
     digest: 82dd6946cae53a7140fb73198263190bb33a815cd898a08a6a7c70883fe5dc80
     home: https://github.com/JZacharie/demo-RUM
@@ -101,4 +121,4 @@ entries:
     urls:
     - https://JZacharie.github.io/demo-RUM/demo-rum-0.1.0.tgz
     version: 0.1.0
-generated: "2025-12-26T21:01:07.770960094Z"
+generated: "2025-12-26T21:48:38.751676133Z"
