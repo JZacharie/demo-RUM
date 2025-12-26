@@ -1,0 +1,119 @@
+feat: Add OpenTelemetry distributed tracing support
+
+## 🎯 Objectif
+Ajouter le support complet d'OpenTelemetry pour créer des traces distribuées
+visibles dans OpenObserve.
+
+## ✨ Nouvelles Fonctionnalités
+
+### Module d'Instrumentation OpenTelemetry
+- Nouveau module `src/telemetry.js` avec helpers pour créer des traces
+- Initialisation automatique du tracer provider
+- Export OTLP vers OpenObserve
+- Instrumentation automatique (fetch, XHR, user interactions)
+
+### Nouvelle Page Traces
+- Page dédiée `/traces.html` pour tester les traces
+- 10+ scénarios de tracing (simples, complexes, performance)
+- Statistiques en temps réel (traces, spans, durée moyenne)
+- Interface utilisateur moderne et responsive
+
+### Scénarios de Tracing
+- Actions simples: Simple Action, API Call, Database Query
+- Workflows complexes: E-commerce Checkout, Data Pipeline, Microservices
+- Tests de performance: Fast, Slow, Parallel, Error scenarios
+
+## 🔧 Modifications
+
+### Code Source
+- `package.json`: Ajout de 11 packages OpenTelemetry
+- `src/main.js`: Instrumentation des boutons avec OpenTelemetry
+- `src/plugins.js`: Traces pour le chargement de plugins
+- `index.html`, `plugins.html`, `apis.html`: Ajout du lien Traces
+
+### Documentation
+- `README.md`: Ajout de la section OpenTelemetry Traces
+- Nouveaux fichiers de documentation (voir ci-dessous)
+
+## 📁 Fichiers Créés
+
+### Code Source (4 fichiers)
+- `src/telemetry.js` - Module d'instrumentation OpenTelemetry
+- `src/traces.js` - Logique de la page traces
+- `src/telemetry.config.example.js` - Configuration exemple
+- `traces.html` - Interface de la page traces
+
+### Documentation (5 fichiers)
+- `OPENTELEMETRY_TRACES.md` - Documentation complète
+- `QUICKSTART.md` - Guide de démarrage rapide
+- `IMPROVEMENTS_SUMMARY.md` - Résumé des améliorations
+- `CHANGELOG.md` - Historique des changements
+- `RESUME_EXECUTIF.md` - Résumé exécutif
+
+### Outils (2 fichiers)
+- `test-installation.sh` - Script de test automatisé
+- `SUMMARY.txt` - Résumé visuel ASCII
+
+## 🔍 Configuration
+
+### Endpoint OTLP
+```
+URL: https://o2-openobserve.p.zacharie.org/api/default/v1/traces
+Protocol: OTLP/HTTP
+Format: JSON
+Authentication: Basic Auth
+```
+
+### Attributs de Trace
+- Service: demo-rum
+- Version: 0.0.4
+- Environment: production
+- User context, operation details, performance metrics
+
+## 📊 Exemple de Trace
+
+```
+Trace: ecommerce.checkout (600ms, 5 spans)
+├─ ecommerce.checkout (parent)
+├─ db.SELECT - validate_cart (100ms)
+├─ http.POST - process_payment (300ms)
+├─ db.UPDATE - update_inventory (80ms)
+└─ db.INSERT - create_order (120ms)
+```
+
+## ✅ Tests
+
+- ✅ Installation des dépendances réussie
+- ✅ Tous les fichiers créés et validés
+- ✅ Serveur Vite démarre correctement
+- ✅ Pages HTML valides
+- ✅ Imports JavaScript corrects
+
+## 🚀 Démarrage
+
+```bash
+npm install
+npm run dev
+# Ouvrir http://localhost:3000/traces.html
+```
+
+## 📚 Documentation
+
+Voir les fichiers suivants pour plus de détails:
+- `QUICKSTART.md` - Démarrage rapide
+- `OPENTELEMETRY_TRACES.md` - Guide complet
+- `RESUME_EXECUTIF.md` - Vue d'ensemble
+
+## 🎯 Impact
+
+- Observabilité complète: RUM + Logs + Traces
+- Debugging facilité avec contexte complet
+- Performance monitoring amélioré
+- Standard industriel (OpenTelemetry)
+- Production ready
+
+---
+
+**Version**: 0.0.4
+**Date**: 2025-12-26
+**Breaking Changes**: Aucun
