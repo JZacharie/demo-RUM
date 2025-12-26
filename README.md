@@ -8,6 +8,7 @@ A modern web application demonstrating Real User Monitoring (RUM) with OpenObser
 - **Session Replay**: Record and replay user sessions for debugging
 - **Performance Tracking**: Monitor resources, long tasks, and user interactions
 - **Error Monitoring**: Capture and forward JavaScript errors to OpenObserve
+- **OpenTelemetry Traces**: Distributed tracing with OTLP export to OpenObserve ⭐ NEW
 - **Modern UI**: Beautiful, responsive interface with animations and glassmorphism
 - **Production Ready**: Docker containerization with multi-stage builds
 - **Kubernetes Native**: Complete Helm chart for easy deployment
@@ -135,6 +136,53 @@ The application is configured to send RUM data to OpenObserve with the following
 
 These settings can be modified in [`src/main.js`](src/main.js).
 
+## 🔍 OpenTelemetry Traces ⭐ NEW
+
+This application now includes comprehensive **OpenTelemetry distributed tracing** capabilities!
+
+### Features
+
+- ✅ **Automatic instrumentation** of fetch/XHR requests
+- ✅ **Manual instrumentation** with helper functions
+- ✅ **Nested spans** for complex workflows
+- ✅ **OTLP export** to OpenObserve
+- ✅ **Rich attributes** (service, user, operation details)
+- ✅ **Error tracking** with span exceptions
+
+### Quick Start
+
+1. Navigate to `/traces.html` in the running application
+2. Click on various action buttons to generate traces
+3. View traces in OpenObserve at `https://o2-openobserve.p.zacharie.org`
+
+### Documentation
+
+- 📖 **[Complete Documentation](OPENTELEMETRY_TRACES.md)** - Detailed guide on OpenTelemetry integration
+- 🚀 **[Quick Start Guide](QUICKSTART.md)** - Get started in 5 minutes
+- 📊 **[Improvements Summary](IMPROVEMENTS_SUMMARY.md)** - Overview of all changes
+
+### Example Traces
+
+The application includes several trace scenarios:
+
+- **Simple Actions**: Single-span traces for basic operations
+- **E-commerce Checkout**: 5-span workflow (cart validation → payment → inventory → order)
+- **Data Pipeline**: ETL workflow with extract, transform, load spans
+- **Microservices**: Orchestration across multiple services
+- **Performance Tests**: Fast, slow, parallel, and error scenarios
+
+### Configuration
+
+Traces are exported to OpenObserve via OTLP/HTTP:
+
+```javascript
+endpoint: 'https://o2-openobserve.p.zacharie.org/api/default/v1/traces'
+format: OTLP/HTTP (JSON)
+authentication: Basic Auth
+```
+
+See [`src/telemetry.config.example.js`](src/telemetry.config.example.js) for configuration examples.
+
 ## 📦 CI/CD Pipeline
 
 The project includes two GitHub Actions workflows:
@@ -180,24 +228,48 @@ demo-RUM/
 │       └── templates/             # Kubernetes manifests
 ├── src/
 │   ├── main.js                    # OpenObserve RUM initialization
+│   ├── plugins.js                 # Plugin manager page
+│   ├── apis.js                    # External APIs page
+│   ├── traces.js                  # OpenTelemetry traces page ⭐ NEW
+│   ├── telemetry.js               # OpenTelemetry instrumentation ⭐ NEW
+│   ├── telemetry.config.example.js # Config example ⭐ NEW
 │   └── style.css                  # Application styles
 ├── Dockerfile                     # Multi-stage Docker build
 ├── nginx.conf                     # Nginx configuration
 ├── index.html                     # Main HTML file
+├── plugins.html                   # Plugin manager page
+├── apis.html                      # External APIs page
+├── traces.html                    # OpenTelemetry traces page ⭐ NEW
 ├── package.json                   # Node.js dependencies
-└── vite.config.js                 # Vite configuration
+├── vite.config.js                 # Vite configuration
+├── OPENTELEMETRY_TRACES.md        # OpenTelemetry documentation ⭐ NEW
+├── IMPROVEMENTS_SUMMARY.md        # Summary of improvements ⭐ NEW
+├── QUICKSTART.md                  # Quick start guide ⭐ NEW
+└── test-installation.sh           # Installation test script ⭐ NEW
 ```
 
 ## 🎯 Interactive Demo Features
 
 The application includes several interactive buttons to demonstrate RUM capabilities:
 
+### Main Page
 - **Track Action**: Log custom user actions
 - **Simulate Navigation**: Track page navigation events
 - **Load Resource**: Simulate API calls and resource loading
 - **Generate Error**: Create test errors for error monitoring
 - **Send Log**: Send logs with different severity levels
 - **Update User**: Change user context dynamically
+
+### Plugin Manager Page
+- **Load Plugin**: Simulate loading plugins from PostgreSQL database
+- Creates distributed traces with database operations
+
+### OpenTelemetry Traces Page ⭐ NEW
+- **Simple Actions**: Single-span traces (action, API call, DB query)
+- **E-commerce Checkout**: Multi-span workflow simulation
+- **Data Pipeline**: ETL process with extract, transform, load
+- **Microservices Call**: Service orchestration simulation
+- **Performance Tests**: Fast, slow, parallel, and error scenarios
 
 ## 📊 Monitoring
 
