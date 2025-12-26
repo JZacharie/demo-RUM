@@ -1,5 +1,12 @@
 import { openobserveRum } from '@openobserve/browser-rum';
 import { openobserveLogs } from '@openobserve/browser-logs';
+import {
+    initTelemetry,
+    tracePluginLoad,
+    addSpanEvent,
+    setSpanAttributes,
+    traceDatabaseOperation
+} from './telemetry.js';
 
 const options = window.RUM_CONFIG || {
     clientToken: 'rumZmfACViIKP6YzziM',
@@ -12,6 +19,18 @@ const options = window.RUM_CONFIG || {
     insecureHTTP: false,
     apiVersion: 'v1',
 };
+
+// Initialize OpenTelemetry tracing
+initTelemetry({
+    serviceName: options.service,
+    serviceVersion: options.version,
+    environment: options.env,
+    endpoint: `https://${options.site}/api/${options.organizationIdentifier}/v1/traces`,
+    headers: {
+        'Authorization': `Basic ${btoa(`${options.clientToken}:`)}`,
+        'stream-name': 'default'
+    }
+});
 
 openobserveRum.init({
     applicationId: options.applicationId,
@@ -65,33 +84,83 @@ plugins.forEach(plugin => {
     pluginGrid.appendChild(card);
 
     document.getElementById(`load-${plugin.id}`).addEventListener('click', async () => {
-        showNotification(`🔄 Loading ${plugin.name} from DB...`, 'info');
+        await tracePluginLoad(plugin.id, plugin.name, async (span) => {
+            showNotification(`🔄 Loading ${plugin.name} from DB...`, 'info');
 
-        try {
-            const response = await fetch(`/api/load-plugin/${plugin.id}`);
-            const data = await response.json();
+            // Add plugin metadata to span
+            span.setAttribute('plugin.type', plugin.type);
+            span.setAttribute('plugin.description', plugin.description);
 
-            if (data.status === 'loaded') {
-                openobserveRum.addAction('plugin_load', {
-                    plugin_id: plugin.id,
-                    plugin_name: data.name,
-                    database: 'demo-rum',
-                    status: 'success'
+            // Add event for plugin load start
+            addSpanEvent('plugin_load_started', {
+                'plugin.id': plugin.id,
+                'timestamp': new Date().toISOString()
+            });
+
+            try {
+                // Trace the database operation as a nested span
+                const data = await traceDatabaseOperation('query', 'demo-rum', async (dbSpan) => {
+                    // Add database-specific attributes
+                    dbSpan.setAttribute('db.statement', `SELECT * FROM plugins WHERE id = '${plugin.id}'`);
+                    dbSpan.setAttribute('db.table', 'plugins');
+
+                    // Add event for query start
+                    addSpanEvent('db_query_started', {
+                        'query': 'SELECT plugins',
+                        'timestamp': new Date().toISOString()
+                    });
+
+                    // Make the API call
+                    const response = await fetch(`/api/load-plugin/${plugin.id}`);
+                    const result = await response.json();
+
+                    // Add event for query complete
+                    addSpanEvent('db_query_completed', {
+                        'rows_returned': 1,
+                        'timestamp': new Date().toISOString()
+                    });
+
+                    return result;
                 });
 
-                openobserveLogs.logger.info(`Plugin ${data.name} loaded from demo-rum database`, {
-                    plugin_id: plugin.id,
-                    db: 'demo-rum'
+                if (data.status === 'loaded') {
+                    // Add success event
+                    addSpanEvent('plugin_loaded_successfully', {
+                        'plugin.name': data.name,
+                        'timestamp': new Date().toISOString()
+                    });
+
+                    openobserveRum.addAction('plugin_load', {
+                        plugin_id: plugin.id,
+                        plugin_name: data.name,
+                        database: 'demo-rum',
+                        status: 'success'
+                    });
+
+                    openobserveLogs.logger.info(`Plugin ${data.name} loaded from demo-rum database`, {
+                        plugin_id: plugin.id,
+                        db: 'demo-rum'
+                    });
+
+                    showNotification(`✅ ${data.name} loaded from DB successfully`, 'success');
+                } else {
+                    throw new Error(data.error || 'Unknown error');
+                }
+            } catch (err) {
+                // Record exception in span
+                span.recordException(err);
+
+                // Add error event
+                addSpanEvent('plugin_load_failed', {
+                    'error.message': err.message,
+                    'timestamp': new Date().toISOString()
                 });
 
-                showNotification(`✅ ${data.name} loaded from DB successfully`, 'success');
-            } else {
-                throw new Error(data.error || 'Unknown error');
+                openobserveLogs.logger.error('Plugin loading failed', { error: err.message });
+                showNotification(`❌ Error: ${err.message}`, 'error');
+                throw err;
             }
-        } catch (err) {
-            openobserveLogs.logger.error('Plugin loading failed', { error: err.message });
-            showNotification(`❌ Error: ${err.message}`, 'error');
-        }
+        });
     });
 });
 

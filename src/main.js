@@ -1,5 +1,13 @@
 import { openobserveRum } from '@openobserve/browser-rum';
 import { openobserveLogs } from '@openobserve/browser-logs';
+import {
+    initTelemetry,
+    traceAction,
+    addSpanEvent,
+    setSpanAttributes,
+    traceApiCall,
+    createActionSpan
+} from './telemetry.js';
 
 // Use runtime configuration from config.js (generated from env vars)
 // Fallback to defaults if config.js is not loaded
@@ -14,6 +22,18 @@ const options = window.RUM_CONFIG || {
     insecureHTTP: false,
     apiVersion: 'v1',
 };
+
+// Initialize OpenTelemetry tracing
+initTelemetry({
+    serviceName: options.service,
+    serviceVersion: options.version,
+    environment: options.env,
+    endpoint: `https://${options.site}/api/${options.organizationIdentifier}/v1/traces`,
+    headers: {
+        'Authorization': `Basic ${btoa(`${options.clientToken}:`)}`,
+        'stream-name': 'default'
+    }
+});
 
 // Initialize OpenObserve RUM
 openobserveRum.init({
@@ -81,22 +101,37 @@ openobserveLogs.logger.info('Application initialized', {
 });
 
 // Button event handlers
-document.getElementById('btn-action').addEventListener('click', () => {
-    interactions++;
-    updateStats();
+document.getElementById('btn-action').addEventListener('click', async () => {
+    await traceAction('user.track_action', async (span) => {
+        interactions++;
+        updateStats();
 
-    openobserveRum.addAction('user_action', {
-        action_type: 'button_click',
-        button_name: 'Track Action',
-        timestamp: new Date().toISOString()
+        // Add span attributes
+        span.setAttribute('user.interactions', interactions);
+        span.setAttribute('button.name', 'Track Action');
+
+        // Add event to span
+        addSpanEvent('button_clicked', {
+            'button.id': 'btn-action',
+            'timestamp': new Date().toISOString()
+        });
+
+        openobserveRum.addAction('user_action', {
+            action_type: 'button_click',
+            button_name: 'Track Action',
+            timestamp: new Date().toISOString()
+        });
+
+        openobserveLogs.logger.info('User action tracked', {
+            action: 'Track Action',
+            interactions: interactions
+        });
+
+        showNotification('✅ Action tracked successfully!', 'success');
+    }, {
+        'action.type': 'button_click',
+        'component': 'interactive_demo'
     });
-
-    openobserveLogs.logger.info('User action tracked', {
-        action: 'Track Action',
-        interactions: interactions
-    });
-
-    showNotification('✅ Action tracked successfully!', 'success');
 });
 
 document.getElementById('btn-navigate').addEventListener('click', () => {
@@ -124,36 +159,59 @@ document.getElementById('btn-navigate').addEventListener('click', () => {
 });
 
 document.getElementById('btn-resource').addEventListener('click', async () => {
-    interactions++;
-    updateStats();
+    await traceAction('resource.load', async (span) => {
+        interactions++;
+        updateStats();
 
-    // Simulate resource loading
-    const startTime = performance.now();
+        // Simulate resource loading
+        const startTime = performance.now();
 
-    try {
-        // Fake API call
-        await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500));
+        try {
+            // Add event for resource load start
+            addSpanEvent('resource_load_started', {
+                'timestamp': new Date().toISOString()
+            });
 
-        const duration = performance.now() - startTime;
+            // Fake API call
+            await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500));
 
-        openobserveRum.addAction('resource_load', {
-            action_type: 'resource',
-            resource_type: 'api_call',
-            duration: duration,
-            timestamp: new Date().toISOString()
-        });
+            const duration = performance.now() - startTime;
 
-        openobserveLogs.logger.info('Resource loaded', {
-            type: 'API call',
-            duration: `${duration.toFixed(2)}ms`,
-            interactions: interactions
-        });
+            // Add span attributes
+            span.setAttribute('resource.type', 'api_call');
+            span.setAttribute('resource.duration_ms', duration);
+            span.setAttribute('resource.status', 'success');
 
-        showNotification(`⚡ Resource loaded in ${duration.toFixed(0)}ms`, 'success');
-    } catch (error) {
-        openobserveLogs.logger.error('Resource loading failed', { error: error.message });
-        showNotification('❌ Resource loading failed', 'error');
-    }
+            // Add event for resource load complete
+            addSpanEvent('resource_load_completed', {
+                'duration_ms': duration,
+                'timestamp': new Date().toISOString()
+            });
+
+            openobserveRum.addAction('resource_load', {
+                action_type: 'resource',
+                resource_type: 'api_call',
+                duration: duration,
+                timestamp: new Date().toISOString()
+            });
+
+            openobserveLogs.logger.info('Resource loaded', {
+                type: 'API call',
+                duration: `${duration.toFixed(2)}ms`,
+                interactions: interactions
+            });
+
+            showNotification(`⚡ Resource loaded in ${duration.toFixed(0)}ms`, 'success');
+        } catch (error) {
+            span.recordException(error);
+            openobserveLogs.logger.error('Resource loading failed', { error: error.message });
+            showNotification('❌ Resource loading failed', 'error');
+            throw error;
+        }
+    }, {
+        'action.type': 'resource_load',
+        'component': 'interactive_demo'
+    });
 });
 
 document.getElementById('btn-error').addEventListener('click', () => {

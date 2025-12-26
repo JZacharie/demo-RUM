@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traces - OpenObserve RUM Demo</title>
+    <script src="/config.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo" style="cursor: pointer" onclick="window.location.href='/'">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="40" height="40" rx="8" fill="url(#gradient)" />
+                    <path d="M20 10L28 16V24L20 30L12 24V16L20 10Z" stroke="white" stroke-width="2"
+                        stroke-linejoin="round" />
+                    <defs>
+                        <linearGradient id="gradient" x1="0" y1="0" x2="40" y2="40">
+                            <stop offset="0%" stop-color="#667eea" />
+                            <stop offset="100%" stop-color="#764ba2" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <h1>OpenObserve RUM</h1>
+            </div>
+            <nav>
+                <a href="/" style="color: white; text-decoration: none; margin-right: 15px">Home</a>
+                <a href="/plugins.html" style="color: white; text-decoration: none; margin-right: 15px">Plugins</a>
+                <a href="/apis.html" style="color: white; text-decoration: none; margin-right: 15px">External APIs</a>
+                <a href="/traces.html"
+                    style="color: white; text-decoration: underline; font-weight: bold; margin-right: 15px">Traces</a>
+            </nav>
+        </header>
+
+        <main class="main">
+            <div style="margin-bottom: 20px;">
+                <a href="/" class="demo-button secondary"
+                    style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8 1L1 8l7 7V9h7V7H8V1z" />
+                    </svg>
+                    Back to Home
+                </a>
+            </div>
+
+            <section class="hero">
+                <h2 class="hero-title">🔍 OpenTelemetry Traces</h2>
+                <p class="hero-subtitle">Create distributed traces with complex operations and nested spans</p>
+            </section>
+
+            <section class="demo-section">
+                <h3>📊 Trace Statistics</h3>
+                <div class="hero-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-traces">0</div>
+                        <div class="stat-label">Total Traces</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-spans">0</div>
+                        <div class="stat-label">Total Spans</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="avg-duration">0ms</div>
+                        <div class="stat-label">Avg Duration</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="demo-section">
+                <h3>🎯 Simple Actions</h3>
+                <p class="section-description">Single-span traces for basic operations</p>
+                <div class="button-grid">
+                    <button class="demo-button primary" id="btn-simple-action">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 2L12.5 7.5L18 8.5L14 12.5L15 18L10 15.5L5 18L6 12.5L2 8.5L7.5 7.5L10 2Z" />
+                        </svg>
+                        Simple Action
+                    </button>
+
+                    <button class="demo-button secondary" id="btn-api-call">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <circle cx="10" cy="10" r="8" />
+                        </svg>
+                        API Call
+                    </button>
+
+                    <button class="demo-button accent" id="btn-db-query">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <rect x="3" y="3" width="14" height="14" rx="2" />
+                        </svg>
+                        Database Query
+                    </button>
+                </div>
+            </section>
+
+            <section class="demo-section">
+                <h3>🔗 Complex Workflows</h3>
+                <p class="section-description">Multi-span traces with nested operations</p>
+                <div class="button-grid">
+                    <button class="demo-button success" id="btn-checkout">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 5m12-5l2 5" stroke="currentColor"
+                                fill="none" />
+                        </svg>
+                        E-commerce Checkout
+                    </button>
+
+                    <button class="demo-button info" id="btn-data-pipeline">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path
+                                d="M4 4h3v3H4V4zm6 0h3v3h-3V4zm6 0h3v3h-3V4zM4 10h3v3H4v-3zm6 0h3v3h-3v-3zm6 0h3v3h-3v-3z" />
+                        </svg>
+                        Data Pipeline
+                    </button>
+
+                    <button class="demo-button warning" id="btn-microservices">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <circle cx="5" cy="5" r="3" />
+                            <circle cx="15" cy="5" r="3" />
+                            <circle cx="10" cy="15" r="3" />
+                            <path d="M7 7l3 6M13 7l-3 6" stroke="currentColor" fill="none" />
+                        </svg>
+                        Microservices Call
+                    </button>
+                </div>
+            </section>
+
+            <section class="demo-section">
+                <h3>⚡ Performance Scenarios</h3>
+                <p class="section-description">Test different performance patterns</p>
+                <div class="button-grid">
+                    <button class="demo-button primary" id="btn-fast-operation">
+                        ⚡ Fast Operation (50-100ms)
+                    </button>
+
+                    <button class="demo-button secondary" id="btn-slow-operation">
+                        🐌 Slow Operation (2-3s)
+                    </button>
+
+                    <button class="demo-button accent" id="btn-parallel-operations">
+                        🔀 Parallel Operations
+                    </button>
+
+                    <button class="demo-button warning" id="btn-error-scenario">
+                        💥 Error Scenario
+                    </button>
+                </div>
+            </section>
+
+            <section class="info-section">
+                <div class="info-card">
+                    <h4>📈 Distributed Tracing</h4>
+                    <p>All operations create OpenTelemetry traces with proper context propagation</p>
+                </div>
+                <div class="info-card">
+                    <h4>🔍 Span Attributes</h4>
+                    <p>Each span includes rich metadata: user info, operation details, and custom attributes</p>
+                </div>
+                <div class="info-card">
+                    <h4>🎯 Nested Spans</h4>
+                    <p>Complex workflows create parent-child span relationships for full visibility</p>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>Built with ❤️ for OpenObserve RUM Demo</p>
+        </footer>
+    </div>
+    <script type="module" src="/src/traces.js"></script>
+</body>
+
+</html>
