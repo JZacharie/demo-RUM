@@ -120,13 +120,18 @@ export function createActionSpan(actionName, attributes = {}) {
 }
 
 /**
- * Execute a function within a traced span
+ * Execute a function within a traced span with optional service name override
  */
-export async function traceAction(actionName, fn, attributes = {}) {
+export async function traceAction(actionName, fn, attributes = {}, serviceName = null) {
     const tracer = getTracer();
 
     return tracer.startActiveSpan(actionName, async (span) => {
         try {
+            // Add service name if provided
+            if (serviceName) {
+                span.setAttribute('service.name', serviceName);
+            }
+
             // Add custom attributes
             Object.entries(attributes).forEach(([key, value]) => {
                 span.setAttribute(key, value);
@@ -191,7 +196,7 @@ export function createNestedSpan(spanName, attributes = {}) {
 }
 
 /**
- * Trace a database operation
+ * Trace a database operation with dedicated service name
  */
 export async function traceDatabaseOperation(operation, dbName, fn) {
     return traceAction(`db.${operation}`, fn, {
@@ -199,22 +204,22 @@ export async function traceDatabaseOperation(operation, dbName, fn) {
         'db.name': dbName,
         'db.operation': operation,
         'component': 'database',
-    });
+    }, 'demo-rum-database-service');
 }
 
 /**
- * Trace an API call
+ * Trace an API call with dedicated service name
  */
 export async function traceApiCall(method, endpoint, fn) {
     return traceAction(`http.${method.toLowerCase()}`, fn, {
         'http.method': method,
         'http.url': endpoint,
         'component': 'http',
-    });
+    }, 'demo-rum-api-gateway');
 }
 
 /**
- * Trace a plugin load operation
+ * Trace a plugin load operation with dedicated service name
  */
 export async function tracePluginLoad(pluginId, pluginName, fn) {
     return traceAction('plugin.load', fn, {
@@ -222,7 +227,7 @@ export async function tracePluginLoad(pluginId, pluginName, fn) {
         'plugin.name': pluginName,
         'operation': 'load',
         'component': 'plugin_manager',
-    });
+    }, 'demo-rum-plugin-service');
 }
 
 /**
@@ -230,6 +235,76 @@ export async function tracePluginLoad(pluginId, pluginName, fn) {
  */
 export function getCurrentContext() {
     return context.active();
+}
+
+/**
+ * Trace a user service operation
+ */
+export async function traceUserService(operation, fn, attributes = {}) {
+    return traceAction(`user.${operation}`, fn, {
+        'service.type': 'user-management',
+        ...attributes
+    }, 'demo-rum-user-service');
+}
+
+/**
+ * Trace a product service operation
+ */
+export async function traceProductService(operation, fn, attributes = {}) {
+    return traceAction(`product.${operation}`, fn, {
+        'service.type': 'product-catalog',
+        ...attributes
+    }, 'demo-rum-product-service');
+}
+
+/**
+ * Trace an analytics service operation
+ */
+export async function traceAnalyticsService(operation, fn, attributes = {}) {
+    return traceAction(`analytics.${operation}`, fn, {
+        'service.type': 'analytics',
+        ...attributes
+    }, 'demo-rum-analytics-service');
+}
+
+/**
+ * Trace a payment service operation
+ */
+export async function tracePaymentService(operation, fn, attributes = {}) {
+    return traceAction(`payment.${operation}`, fn, {
+        'service.type': 'payment-processing',
+        ...attributes
+    }, 'demo-rum-payment-service');
+}
+
+/**
+ * Trace an inventory service operation
+ */
+export async function traceInventoryService(operation, fn, attributes = {}) {
+    return traceAction(`inventory.${operation}`, fn, {
+        'service.type': 'inventory-management',
+        ...attributes
+    }, 'demo-rum-inventory-service');
+}
+
+/**
+ * Trace an order service operation
+ */
+export async function traceOrderService(operation, fn, attributes = {}) {
+    return traceAction(`order.${operation}`, fn, {
+        'service.type': 'order-management',
+        ...attributes
+    }, 'demo-rum-order-service');
+}
+
+/**
+ * Trace a notification service operation
+ */
+export async function traceNotificationService(operation, fn, attributes = {}) {
+    return traceAction(`notification.${operation}`, fn, {
+        'service.type': 'notification',
+        ...attributes
+    }, 'demo-rum-notification-service');
 }
 
 /**

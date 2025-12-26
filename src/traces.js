@@ -8,7 +8,13 @@ import {
     traceApiCall,
     traceDatabaseOperation,
     createNestedSpan,
-    getTracer
+    getTracer,
+    traceUserService,
+    traceProductService,
+    traceAnalyticsService,
+    tracePaymentService,
+    traceInventoryService,
+    traceOrderService
 } from './telemetry.js';
 
 const options = window.RUM_CONFIG || {
@@ -120,7 +126,7 @@ document.getElementById('btn-simple-action').addEventListener('click', async () 
         });
 
         openobserveLogs.logger.info('Simple action completed');
-    });
+    }, {}, 'demo-rum-frontend');
 
     const duration = performance.now() - startTime;
     updateStats(1, duration);
@@ -177,7 +183,7 @@ document.getElementById('btn-checkout').addEventListener('click', async () => {
 
         addSpanEvent('checkout_started', { 'timestamp': new Date().toISOString() });
 
-        // Step 1: Validate cart
+        // Step 1: Validate cart (Database Service)
         await traceDatabaseOperation('SELECT', 'demo-rum', async (span) => {
             span.setAttribute('db.operation', 'validate_cart');
             span.setAttribute('db.table', 'cart_items');
@@ -185,27 +191,28 @@ document.getElementById('btn-checkout').addEventListener('click', async () => {
             addSpanEvent('cart_validated', { 'items': 3 });
         });
 
-        // Step 2: Process payment
-        await traceApiCall('POST', '/api/payments', async (span) => {
+        // Step 2: Process payment (Payment Service)
+        await tracePaymentService('process', async (span) => {
             span.setAttribute('payment.method', 'credit_card');
             span.setAttribute('payment.amount', 149.99);
+            span.setAttribute('payment.currency', 'EUR');
             await sleep(300);
             addSpanEvent('payment_processed', { 'transaction_id': 'txn-456' });
         });
 
-        // Step 3: Update inventory
-        await traceDatabaseOperation('UPDATE', 'demo-rum', async (span) => {
-            span.setAttribute('db.operation', 'update_inventory');
-            span.setAttribute('db.table', 'products');
-            span.setAttribute('db.rows_affected', 3);
+        // Step 3: Update inventory (Inventory Service)
+        await traceInventoryService('update', async (span) => {
+            span.setAttribute('inventory.operation', 'reserve_items');
+            span.setAttribute('inventory.items_count', 3);
             await sleep(80);
             addSpanEvent('inventory_updated', { 'products': 3 });
         });
 
-        // Step 4: Create order
-        await traceDatabaseOperation('INSERT', 'demo-rum', async (span) => {
-            span.setAttribute('db.operation', 'create_order');
-            span.setAttribute('db.table', 'orders');
+        // Step 4: Create order (Order Service)
+        await traceOrderService('create', async (span) => {
+            span.setAttribute('order.id', 'ord-789');
+            span.setAttribute('order.total', 149.99);
+            span.setAttribute('order.status', 'confirmed');
             await sleep(120);
             addSpanEvent('order_created', { 'order_id': 'ord-789' });
         });
@@ -219,7 +226,7 @@ document.getElementById('btn-checkout').addEventListener('click', async () => {
             order_id: 'ord-789',
             total: 149.99
         });
-    });
+    }, {}, 'demo-rum-frontend');
 
     const duration = performance.now() - startTime;
     updateStats(5, duration);
@@ -239,14 +246,14 @@ document.getElementById('btn-data-pipeline').addEventListener('click', async () 
             span.setAttribute('records_extracted', 1000);
             await sleep(200);
             addSpanEvent('extraction_complete', { 'records': 1000 });
-        });
+        }, {}, 'demo-rum-etl-extract');
 
         // Step 2: Transform data
         await traceAction('pipeline.transform', async (span) => {
             span.setAttribute('transformations', 'normalize,enrich,aggregate');
             await sleep(300);
             addSpanEvent('transformation_complete', { 'records': 950 });
-        });
+        }, {}, 'demo-rum-etl-transform');
 
         // Step 3: Load data
         await traceAction('pipeline.load', async (span) => {
@@ -254,7 +261,7 @@ document.getElementById('btn-data-pipeline').addEventListener('click', async () 
             span.setAttribute('records_loaded', 950);
             await sleep(250);
             addSpanEvent('load_complete', { 'records': 950 });
-        });
+        }, {}, 'demo-rum-etl-load');
 
         addSpanEvent('pipeline_completed', {
             'records_processed': 950,
@@ -262,7 +269,7 @@ document.getElementById('btn-data-pipeline').addEventListener('click', async () 
         });
 
         openobserveLogs.logger.info('Data pipeline completed', { records: 950 });
-    });
+    }, {}, 'demo-rum-etl-orchestrator');
 
     const duration = performance.now() - startTime;
     updateStats(4, duration);
@@ -276,24 +283,25 @@ document.getElementById('btn-microservices').addEventListener('click', async () 
         parentSpan.setAttribute('orchestrator', 'api_gateway');
 
         // Call user service
-        await traceApiCall('GET', '/api/user-service/profile', async (span) => {
-            span.setAttribute('service.name', 'user-service');
+        await traceUserService('get_profile', async (span) => {
+            span.setAttribute('user.id', 'user-123');
             span.setAttribute('service.version', '1.2.0');
             await sleep(120);
             addSpanEvent('user_data_fetched', { 'user_id': 'user-123' });
         });
 
         // Call product service
-        await traceApiCall('GET', '/api/product-service/recommendations', async (span) => {
-            span.setAttribute('service.name', 'product-service');
+        await traceProductService('get_recommendations', async (span) => {
+            span.setAttribute('user.id', 'user-123');
             span.setAttribute('service.version', '2.1.0');
+            span.setAttribute('recommendations.count', 10);
             await sleep(180);
             addSpanEvent('recommendations_fetched', { 'count': 10 });
         });
 
         // Call analytics service
-        await traceApiCall('POST', '/api/analytics-service/track', async (span) => {
-            span.setAttribute('service.name', 'analytics-service');
+        await traceAnalyticsService('track_event', async (span) => {
+            span.setAttribute('event.type', 'page_view');
             span.setAttribute('service.version', '1.0.5');
             await sleep(90);
             addSpanEvent('event_tracked', { 'event': 'page_view' });
@@ -305,7 +313,7 @@ document.getElementById('btn-microservices').addEventListener('click', async () 
         });
 
         openobserveLogs.logger.info('Microservices orchestration completed');
-    });
+    }, {}, 'demo-rum-api-gateway');
 
     const duration = performance.now() - startTime;
     updateStats(4, duration);
