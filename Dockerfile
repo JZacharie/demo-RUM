@@ -10,7 +10,7 @@ RUN npm run build
 FROM python:3.11-slim
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     build-essential \
     libpq-dev \
@@ -18,9 +18,15 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
+# Upgrade pip, setuptools and wheel to fix packaging CVEs
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+
 # Copy requirement first for better caching
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Create appuser with UID/GID 101
+RUN groupadd -g 101 appuser && useradd -u 101 -g 101 -s /bin/sh -d /app appuser
 
 # Copy built frontend files
 COPY --from=builder /app/dist /usr/share/nginx/html
@@ -29,6 +35,8 @@ COPY --from=builder /app/src /usr/share/nginx/html/src
 COPY api.py .
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh && chown -R 101:101 /app /usr/share/nginx/html
+
+USER 101
 
 # Environment variables
 ENV RUM_CLIENT_TOKEN=""
